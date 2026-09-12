@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#04090a">
+  <title>원더던전</title>
+  <style>
+    html,
+    body,
+    #game {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      border: 0;
+      overflow: hidden;
+      background: #04090a;
+    }
+
+    #game {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <iframe id="game" title="원더던전" allow="autoplay; fullscreen" src="builds/250a1460e981/"></iframe>
+  <script>
+    (() => {
+      const frame = document.getElementById('game');
+      const fallbackBuild = '250a1460e981';
+      const fixedPath = window.location.pathname;
+      if (window.location.search || window.location.hash) {
+        window.history.replaceState(null, '', fixedPath);
+      }
+
+      fetch(`latest.json?t=${Date.now()}`, { cache: 'no-store' })
+        .then((response) => {
+          if (!response.ok) throw new Error('latest build lookup failed');
+          return response.json();
+        })
+        .then(({ build }) => {
+          const safeBuild = typeof build === 'string' && /^[a-f0-9]{12}$/.test(build)
+            ? build
+            : fallbackBuild;
+          const nextPath = `builds/${safeBuild}/`;
+          if (!frame.getAttribute('src')?.endsWith(nextPath)) frame.setAttribute('src', nextPath);
+        })
+        .catch(() => {
+          // The embedded fallback is a complete immutable build.
+        });
+    })();
+  </script>
+</body>
+</html>
